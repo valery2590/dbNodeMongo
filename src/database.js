@@ -7,7 +7,7 @@ mongoose.set('useUnifiedTopology', true);
 const URI = 'mongodb://localhost/proyecto-propio';
 
 mongoose.connect(URI)
-    .then( db => console.log('DB is connected'))
+    .then(db => console.log('DB is connected'))
     .catch( err => console.log(err));
 
 
