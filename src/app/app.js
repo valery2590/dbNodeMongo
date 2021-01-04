@@ -43,8 +43,12 @@ class App extends Component {
     fetchTasks(){
         fetch('/api/tasks')
         .then(res => res.json())
-        .then(data => console.log(data));
-    }
+        .then(data => {
+            console.log(data);
+            this.setState({tasks:data});
+            console.log(this.state.tasks)
+    });
+}
 
     handleChange(e){
         const {name, value} = e.target;
@@ -97,7 +101,7 @@ class App extends Component {
                                     {
                                         this.state.tasks.map(task => {
                                             return (
-                                                <tr>
+                                                <tr key={task._id}>
                                                     <td>{task.title}</td>
                                                     <td>{task.description}</td>
                                                 </tr>
