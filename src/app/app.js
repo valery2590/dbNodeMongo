@@ -9,29 +9,49 @@ class App extends Component {
         this.state ={
             title: '',
             description: '',
-            tasks: []
+            tasks: [],
+            _id: ''
         };
         this.addTask = this.addTask.bind(this);
         this.handleChange = this.handleChange.bind(this);
     }
 
     addTask(e){
-        fetch('/api/tasks',{
-            method:'POST',
-            body: JSON.stringify(this.state),
-            headers : {
-                'Accept' : 'application/json',
-                'Content-Type':'application/json'
+        if (this.state._id){
+            fetch(`/api/tasks/${this.state._id}`,{
+                method: 'PUT',
+                body: JSON.stringify(this.state),
+                headers : {
+                    'Accept' : 'application/json',
+                    'Content-Type':'application/json'
             }
         })
-            .then (res => res.json())
-            .then (data => {
-                console.log(data)
-                M.toast({html : 'Task Saved'})
-                this.setState({title:'', description:''})
+        .then(res => res.json())
+        .then(data => {
+            M.toast({html:'Task Updated'});
+            console.log(data);
+            this.setState({title:'', description:'',_id:''} )
+            this.fetchTasks();
+        });
+        }else{
+            fetch('/api/tasks',{
+                method:'POST',
+                body: JSON.stringify(this.state),
+                headers : {
+                    'Accept' : 'application/json',
+                    'Content-Type':'application/json'
+                }
             })
-            
-            .catch (err => console.log(err))
+                .then (res => res.json())
+                .then (data => {
+                    console.log(data)
+                    M.toast({html : 'Task Saved'})
+                    this.setState({title:'', description:''});
+                    this.fetchTasks();
+                })
+                
+                .catch (err => console.log(err))
+        }
         e.preventDefault();
     }
  
@@ -49,6 +69,35 @@ class App extends Component {
             console.log(this.state.tasks)
     });
 }
+    deleteTask(id){
+        if (confirm ('are you sure of it?')){
+            fetch (`/api/tasks/${id}`, {
+                method:'DELETE',
+                headers : {
+                    'Accept' : 'application/json',
+                    'Content-Type':'application/json'
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+            M.toast({html:'Task Deleted'});
+            console.log(data);
+            this.fetchTasks();
+        });
+        }
+}
+    editTask(id){
+        fetch(`/api/tasks/${id}`)
+        .then (res => res.json())
+        .then(data => {
+            console.log(data)
+            this.setState({
+                title: data.title,
+                description: data.description,
+                _id: data._id
+            })
+        });
+    }
 
     handleChange(e){
         const {name, value} = e.target;
@@ -104,6 +153,10 @@ class App extends Component {
                                                 <tr key={task._id}>
                                                     <td>{task.title}</td>
                                                     <td>{task.description}</td>
+                                                    <td>
+                                                        <button className="btn light-blue darken-4"><i className="material-icons" onClick={ () =>this.deleteTask (task._id)} >delete</i></button>
+                                                        <button className="btn light-blue darken-4" style={{margin:'4px'}} onClick={()=> this.editTask(task._id)}><i className="material-icons">edit</i></button>
+                                                    </td>
                                                 </tr>
                                             )
                                         })
